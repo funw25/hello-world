@@ -1,5 +1,5 @@
 # hello-world
-This repository is for practiceing the GitHub Flow.  
+I shall record my steps.
 我决定开始记录我的足迹。  
 
 
