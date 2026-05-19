@@ -10,4 +10,8 @@ This repository will be used to document my technical learning journey.
 
 
 Do what is right in the long view of history.Do things that make an impact on the world.  
-要做从历史上看正确的事。做对世界有影响的事。
+  
+
+==========  
+2026.5.19  
+学习Upload a project。上传了本学期的c++笔记。
