@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>课程管理工作台</title>
+<style>
+  :root {
+    --bg: #faf8f3;
+    --surface: #ffffff;
+    --primary: #2d6a4f;
+    --primary-light: #d8f3dc;
+    --primary-soft: #eaf5ee;
+    --accent: #e07a5f;
+    --accent-light: #fde6dc;
+    --text: #1b2a1f;
+    --text-secondary: #5c6b5f;
+    --text-tertiary: #94a39a;
+    --border: #e2e0d8;
+    --border-light: #eeece4;
+    --success: #2d8659;
+    --success-light: #d8f3dc;
+    --warning: #d4961c;
+    --warning-light: #fdf3e0;
+    --danger: #c44536;
+    --danger-light: #fce4e1;
+    --radius: 14px;
+    --radius-sm: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,.04), 0 1px 2px rgba(0,0,0,.03);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .app { display: flex; min-height: 100vh; }
+  /* Sidebar */
+  .sidebar {
+    width: 230px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 0 20px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .logo {
+    padding: 0 24px 24px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 12px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear(135deg, var(--primary), #40916c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+  .logo h1 { font-size: 17px; font-weight: 600; color: var(--text); }
+  .logo p { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .nav { flex: 1; padding: 0 12px; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: all .15s;
+    border-radius: var(--radius-sm);
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--primary-soft); color: var(--primary); }
+  .nav-item.active {
+    background: var(--primary);
+    color: #fff;
+    font-weight: 500;
+  }
+  .nav-icon {
+    width: 18px; height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-light);
+    font-size: 11px;
+    color: var(--text-tertiary);
+  }
+  /* Main */
+  .main { flex: 1; padding: 32px 40px; max-width: 1100px; }
+  .page { display: none; }
+  .page.active { display: block; }
+  .page-header { margin-bottom: 28px; }
+  .page-header h2 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+  .page-header p { font-size: 13px; color: var(--text-secondary); }
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  /* Overview */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card .stat-icon {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .stat-label { font-size: 12px; color: var(--text-tertiary); margin-bottom: 6px; }
+  .stat-value { font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+  /* Today highlight */
+  .today-banner {
+    background: linear(135deg, #2d6a4f, #40916c);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    color: #fff;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .today-banner h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .today-banner p { font-size: 13px; opacity: .85; }
+  .today-banner .banner-right { text-align: right; }
+  .today-banner .banner-count { font-size: 36px; font-weight: 700; line-height: 1; }
+  .today-banner .banner-label { font-size: 12px; opacity: .8; margin-top: 4px; }
+  /* Schedule */
+  .schedule-grid {
+    display: grid;
+    grid-template-columns: 55px repeat(5, 1fr);
+    gap: 3px;
+    font-size: 12px;
+  }
+  .sch-header {
+    text-align: center;
+    padding: 8px 4px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+  }
+  .sch-header.today-col {
+    background: var(--primary);
+    color: #fff;
+  }
+  .sch-time {
+    text-align: center;
+    padding: 6px 2px;
+    color: var(--text-tertiary);
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .sch-cell {
+    padding: 5px 7px;
+    border-radius: var(--radius-sm);
+    min-height: 46px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .sch-cell.empty {
+    background: var(--bg);
+    color: var(--text-tertiary);
+    font-size: 14px;
+    align-items: center;
+    justify-content: center;
+    opacity: .4;
+  }
+  .sch-cell.empty:hover { opacity: .7; background: var(--primary-soft); }
+  .sch-cell.course { color: #fff; font-weight: 500; }
+  .sch-cell.course:hover { transform: scale(1.03); }
+  .sch-cell .course-name { font-size: 12px; font-weight: 600; }
+  .sch-cell .course-loc { font-size: 10px; opacity: .8; margin-top: 2px; }
+  /* DDL */
+  .ddl-list { display: flex; flex-direction: column; gap: 10px; }
+  .ddl-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--border);
+    transition: all .15s;
+  }
+  .ddl-item:hover { box-shadow: var(--shadow); }
+  .ddl-item.urgent { border-left-color: var(--danger); background: var(--danger-light); }
+  .ddl-item.soon { border-left-color: var(--warning); }
+  .ddl-item.normal { border-left-color: var(--success); }
+  .ddl-item.done { opacity: .45; }
+  .ddl-item.done .ddl-title { text-decoration: line-through; }
+  .ddl-check {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ddl-check:hover { border-color: var(--primary); }
+  .ddl-check.done { background: var(--success); border-color: var(--success); }
+  .ddl-check.done::after {
+    content: '';
+    width: 6px; height: 10px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translateY(-1px);
+  }
+  .ddl-info { flex: 1; min-width: 0; }
+  .ddl-title { font-size: 14px; font-weight: 500; }
+  .ddl-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 3px; }
+  .ddl-progress {
+    width: 80px;
+    height: 6px;
+    background: var(--border-light);
+    border-radius: 3px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .ddl-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width .3s;
+  }
+  .ddl-countdown {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    text-align: center;
+    min-width: 60px;
+  }
+  .ddl-countdown.urgent { background: var(--danger); color: #fff; }
+  .ddl-countdown.soon { background: var(--warning-light); color: var(--warning); }
+  .ddl-countdown.normal { background: var(--success-light); color: var(--success); }
+  .ddl-countdown.done { background: var(--border-light); color: var(--text-tertiary); }
+  .ddl-del {
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .ddl-del:hover { color: var(--danger); }
+  /* Add form */
+  .add-form {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-light);
+  }
+  .add-form input, .add-form select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+    background: var(--surface);
+  }
+  .add-form input:focus, .add-form select:focus { border-color: var(--primary); }
+  .add-form input[type="text"] { flex: 1; min-width: 160px; }
+  .add-form input[type="date"] { min-width: 130px; }
+  .btn {
+    padding: 8px 18px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: #245544; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { opacity: .9; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  /* Notes */
+  .notes-grid { display: grid; grid-template-columns: 260px 1fr; gap: 20px; }
+  .note-list { display: flex; flex-direction: column; gap: 6px; }
+  .note-item {
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all .15s;
+    border: 1px solid transparent;
+  }
+  .note-item:hover { border-color: var(--border); }
+  .note-item.active {
+    background: var(--surface);
+    border-color: var(--primary);
+    box-shadow: var(--shadow);
+  }
+  .note-item .note-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .note-item .note-date { font-size: 11px; color: var(--text-tertiary); }
+  .note-item .note-tag {
+    display: inline-block;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    margin-right: 4px;
+  }
+  .note-editor textarea {
+    width: 100%;
+    min-height: 420px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.8;
+    resize: vertical;
+    outline: none;
+    font-family: inherit;
+    background: var(--surface);
+  }
+  .note-editor textarea:focus { border-color: var(--primary); }
+  .note-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    align-items: center;
+  }
+  .note-toolbar input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+    font-family: inherit;
+    background: var(--surface);
+  }
+  .note-toolbar input:focus { border-color: var(--primary); }
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.3);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.12);
+  }
+  .modal h3 { font-size: 18px; font-weight: 600; margin-bottom: 18px; }
+  .modal-field { margin-bottom: 14px; }
+  .modal-field label { display: block; font-size: 12px; color: var(--text-tertiary); margin-bottom: 6px; }
+  .modal-field input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .modal-field input:focus { border-color: var(--primary); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  /* Empty state */
+  .empty-state { text-align: center; padding: 32px 20px; color: var(--text-tertiary); }
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity .3s, transform .3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+  /* Course colors */
+  .cc0 { background: #2d6a4f; }
+  .cc1 { background: #e07a5f; }
+  .cc2 { background: #3d7a8c; }
+  .cc3 { background: #7b6cab; }
+  .cc4 { background: #d4961c; }
+  .cc5 { background: #c44536; }
+  /* Today course list */
+  .today-course-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .today-course-item:last-child { border-bottom: none; }
+  .tc-time {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    width: 48px;
+    flex-shrink: 0;
+  }
+  .tc-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .tc-name { font-weight: 500; flex: 1; }
+  .tc-loc { font-size: 12px; color: var(--text-tertiary); }
+  /* Mobile bottom nav */
+  .mobile-nav { display: none; }
+  @media (max-width: 768px) {
+    .app { flex-direction: column; padding-bottom: 60px; }
+    .sidebar { display: none; }
+    .mobile-nav {
+      display: flex;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 8px 0;
+      z-index: 100;
+    }
+    .mobile-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 0;
+      font-size: 10px;
+      color: var(--text-tertiary);
+      cursor: pointer;
+    }
+    .mobile-nav-item.active { color: var(--primary); }
+    .main { padding: 20px 16px; }
+    .notes-grid { grid-template-columns: 1fr; }
+    .schedule-grid { font-size: 10px; gap: 1px; }
+    .sch-cell { min-height: 36px; padding: 3px; }
+    .sch-cell .course-name { font-size: 10px; }
+    .sch-cell .course-loc { font-size: 9px; }
+    .ddl-progress { width: 50px; }
+    .overview-grid { grid-template-columns: repeat(2, 1fr); }
+    .today-banner { flex-direction: column; gap: 12px; text-align: center; }
+    .today-banner .banner-right { text-align: center; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">S</div>
+      <h1>课程管理台</h1>
+      <p>校园学习工作台</p>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-footer">
+      <div id="today-date"></div>
+      <div style="margin-top:4px">数据存本地浏览器</div>
+    </div>
+  </aside>
+  <main class="main">
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <h2>今日概览</h2>
+        <p id="overview-greeting"></p>
+      </div>
+      <div class="today-banner" id="today-banner"></div>
+      <div class="overview-grid" id="overview-stats"></div>
+      <div class="card">
+        <div class="card-title">今日课程</div>
+        <div id="today-courses"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">即将到期的 DDL</div>
+        <div id="upcoming-ddl"></div>
+      </div>
+    </div>
+    <div class="page" id="page-schedule">
+      <div class="page-header">
+        <h2>周课表</h2>
+        <p>点击空白格添加课程，点击已有课程可编辑或删除</p>
+      </div>
+      <div class="card">
+        <div id="schedule-container"></div>
+      </div>
+    </div>
+    <div class="page" id="page-ddl">
+      <div class="page-header">
+        <h2>DDL 看板</h2>
+        <p>管理作业、实验报告和考试的截止日期</p>
+      </div>
+      <div class="card">
+        <div class="card-title">待办事项 <span id="ddl-summary" style="font-size:12px;color:var(--text-tertiary);font-weight:400"></span></div>
+        <div class="ddl-list" id="ddl-list"></div>
+        <div class="add-form">
+          <input type="text" id="ddl-title" placeholder="DDL 标题（如：数据结构实验报告3）">
+          <input type="text" id="ddl-subject" placeholder="科目" style="width:100px">
+          <input type="date" id="ddl-date">
+          <button class="btn btn-primary" onclick="addDDL()">+ 添加</button>
+        </div>
+      </div>
+    </div>
+    <div class="page" id="page-notes">
+      <div class="page-header">
+        <h2>学习笔记</h2>
+        <p>按科目记录课堂笔记与复习要点，自动保存</p>
+      </div>
+      <div class="notes-grid">
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:600">笔记列表</span>
+            <button class="btn btn-accent btn-sm" onclick="newNote()">+ 新建</button>
+          </div>
+          <div class="note-list" id="note-list"></div>
+        </div>
+        <div class="note-editor">
+          <div class="note-toolbar">
+            <input type="text" id="note-title" placeholder="笔记标题">
+            <input type="text" id="note-subject" placeholder="科目" style="width:100px">
+            <button class="btn btn-outline btn-sm" onclick="saveNote()">保存</button>
+            <button class="btn btn-outline btn-sm" onclick="deleteNote()">删除</button>
+          </div>
+          <textarea id="note-content" placeholder="在这里写笔记内容..."></textarea>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<!-- Mobile bottom nav -->
+<nav class="mobile-nav" id="mobile-nav"></nav>
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">添加课程</h3>
+    <div class="modal-field">
+      <label>课程名称</label>
+      <input type="text" id="modal-course-name" placeholder="如：高等数学">
+    </div>
+    <div class="modal-field">
+      <label>上课地点</label>
+      <input type="text" id="modal-course-loc" placeholder="如：教1-301">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="modal-confirm">确认</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DAYS = ['周一','周二','周三','周四','周五'];
+const TIMES = ['08:00','09:00','10:00','11:00','14:00','15:00','16:00','17:00','19:00','20:00','21:00'];
+const COURSE_COLORS = ['cc0','cc1','cc2','cc3','cc4','cc5'];
+
+const NAV = [
+  { id: 'overview', label: '概览', icon: 'M3 12L12 4l9 8M5 10v10h14V10' },
+  { id: 'schedule', label: '课表', icon: 'M4 5h16v16H4zM4 9h16M8 3v4M16 3v4' },
+  { id: 'ddl', label: 'DDL', icon: 'M12 7v5l3 2M12 2a10 10 0 100 20 10 10 0 000-20z' },
+  { id: 'notes', label: '笔记', icon: 'M4 3h12a2 2 0 012 2v14a2 2 0 01-2 2H4zM4 8h14' },
+];
+
+let state = { schedule: {}, ddls: [], notes: [], currentNoteId: null, scheduleColors: {} };
+
+function loadData() {
+  try {
+    const d = localStorage.getItem('cmt_data_v2');
+    if (d) state = { ...state, ...JSON.parse(d) };
+  } catch(e) {}
+}
+function saveData() { localStorage.setItem('cmt_data_v2', JSON.stringify(state)); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function formatDate(d) {
+  const days = ['日','一','二','三','四','五','六'];
+  return `${d.getMonth()+1}月${d.getDate()}日 周${days[d.getDay()]}`;
+}
+
+function daysBetween(dateStr) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  return Math.ceil((target - today) / 86400000);
+}
+
+// SVG icons
+function svgIcon(path) {
+  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg>`;
+}
+
+// Navigation
+function renderNav() {
+  const nav = document.getElementById('nav');
+  const mobileNav = document.getElementById('mobile-nav');
+  nav.innerHTML = NAV.map(item => `
+    <div class="nav-item ${item.id === 'overview' ? 'active' : ''}" data-page="${item.id}" onclick="switchPage('${item.id}')">
+      <span class="nav-icon">${svgIcon(item.icon)}</span>
+      <span>${item.label}</span>
+    </div>
+  `).join('');
+  mobileNav.innerHTML = NAV.map(item => `
+    <div class="mobile-nav-item ${item.id === 'overview' ? 'active' : ''}" data-page="${item.id}" onclick="switchPage('${item.id}')">
+      <span>${svgIcon(item.icon)}</span>
+      <span>${item.label}</span>
+    </div>
+  `).join('');
+}
+
+function switchPage(pageId) {
+  document.querySelectorAll('.nav-item, .mobile-nav-item').forEach(el =>
+    el.classList.toggle('active', el.dataset.page === pageId)
+  );
+  document.querySelectorAll('.page').forEach(el =>
+    el.classList.toggle('active', el.id === 'page-' + pageId)
+  );
+  if (pageId === 'overview') renderOverview();
+  if (pageId === 'schedule') renderSchedule();
+  if (pageId === 'ddl') renderDDL();
+  if (pageId === 'notes') renderNotes();
+}
+
+// Overview
+function renderOverview() {
+  const now = new Date();
+  const hour = now.getHours();
+  let greeting = '晚上好';
+  if (hour < 6) greeting = '夜深了';
+  else if (hour < 12) greeting = '早上好';
+  else if (hour < 14) greeting = '中午好';
+  else if (hour < 18) greeting = '下午好';
+  document.getElementById('overview-greeting').textContent = `${greeting}！今天是 ${formatDate(now)}`;
+
+  const todayIdx = now.getDay() === 0 ? 7 : now.getDay();
+  const todayCourses = Object.entries(state.schedule)
+    .filter(([key]) => key.startsWith(`d${todayIdx}_`))
+    .map(([key, val]) => ({ time: key.split('_')[1], ...val, key }))
+    .sort((a,b) => a.time.localeCompare(b.time));
+
+  const pendingDDLs = state.ddls.filter(d => !d.done).sort((a,b) => new Date(a.date) - new Date(b.date));
+  const urgentDDLs = pendingDDLs.filter(d => daysBetween(d.date) <= 2);
+  const doneDDLs = state.ddls.filter(d => d.done);
+  const totalNotes = state.notes.length;
+
+  // Today banner
+  const banner = document.getElementById('today-banner');
+  if (todayCourses.length > 0) {
+    banner.innerHTML = `
+      <div>
+        <h3>今天有 ${todayCourses.length} 门课</h3>
+        <p>${todayCourses[0].time} 开始 · ${todayCourses[0].name}${todayCourses.length > 1 ? ' 等' : ''}</p>
+      </div>
+      <div class="banner-right">
+        <div class="banner-count">${todayCourses.length}</div>
+        <div class="banner-label">今日课程</div>
+      </div>
+    `;
+  } else {
+    banner.innerHTML = `
+      <div>
+        <h3 style="color:#1b2a1f">今天没有课程</h3>
+        <p style="color:#1b2a1f">正好可以专心写作业或复习</p>
+      </div>
+      <div class="banner-right">
+        <div class="banner-count">0</div>
+        <div class="banner-label">今日课程</div>
+      </div>
+    `;
+  }
+
+  // Stats
+  document.getElementById('overview-stats').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--primary-soft);color:var(--primary)">${svgIcon('M4 5h16v16H4zM4 9h16M8 3v4M16 3v4')}</div>
+      <div class="stat-label">待办 DDL</div>
+      <div class="stat-value" style="color:${urgentDDLs.length > 0 ? 'var(--danger)' : 'var(--text)'}">${pendingDDLs.length}</div>
+      <div class="stat-sub">${urgentDDLs.length > 0 ? urgentDDLs.length + ' 项紧急' : '暂无紧急'}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--success-light);color:var(--success)">${svgIcon('M9 12l2 2 4-4M12 2a10 10 0 100 20 10 10 0 000-20z')}</div>
+      <div class="stat-label">已完成</div>
+      <div class="stat-value" style="color:var(--success)">${doneDDLs.length}</div>
+      <div class="stat-sub">累计完成 DDL</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:var(--accent-light);color:var(--accent)">${svgIcon('M4 3h12a2 2 0 012 2v14a2 2 0 01-2 2H4zM4 8h14')}</div>
+      <div class="stat-label">学习笔记</div>
+      <div class="stat-value">${totalNotes}</div>
+      <div class="stat-sub">篇已记录</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:#e8eef5;color:#3d7a8c">${svgIcon('M3 12l2-2m0 0l5-5 5 5M5 10v10h14V10')}</div>
+      <div class="stat-label">本周课时</div>
+      <div class="stat-value">${Object.keys(state.schedule).length}</div>
+      <div class="stat-sub">节</div>
+    </div>
+  `;
+
+  // Today's courses
+  const tcEl = document.getElementById('today-courses');
+  if (todayCourses.length === 0) {
+    tcEl.innerHTML = '<div class="empty-state">今天没有课程安排</div>';
+  } else {
+    tcEl.innerHTML = todayCourses.map(c => {
+      const colorIdx = getCourseColorIdx(c.key);
+      return `
+        <div class="today-course-item">
+          <span class="tc-time">${c.time}</span>
+          <span class="tc-dot ${COURSE_COLORS[colorIdx]}"></span>
+          <span class="tc-name">${c.name}</span>
+          <span class="tc-loc">${c.location || '地点未定'}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Upcoming DDL
+  const udEl = document.getElementById('upcoming-ddl');
+  const upcoming = pendingDDLs.slice(0, 5);
+  if (upcoming.length === 0) {
+    udEl.innerHTML = '<div class="empty-state">暂无待办 DDL，轻松一下</div>';
+  } else {
+    udEl.innerHTML = upcoming.map(d => {
+      const days = daysBetween(d.date);
+      let cls = 'normal', label = `还有 ${days} 天`;
+      if (days < 0) { cls = 'urgent'; label = `逾期 ${-days} 天`; }
+      else if (days === 0) { cls = 'urgent'; label = '今天到期'; }
+      else if (days <= 2) { cls = 'urgent'; label = `还有 ${days} 天`; }
+      else if (days <= 7) { cls = 'soon'; label = `还有 ${days} 天`; }
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-light)">
+          <span style="font-weight:500;flex:1">${d.title}</span>
+          <span style="font-size:11px;color:var(--text-tertiary)">${d.subject || ''}</span>
+          <span class="ddl-countdown ${cls}" style="font-size:11px;padding:3px 8px;min-width:50px">${label}</span>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function getCourseColorIdx(key) {
+  if (state.scheduleColors[key] !== undefined) return state.scheduleColors[key];
+  const idx = Object.keys(state.schedule).length % COURSE_COLORS.length;
+  state.scheduleColors[key] = idx;
+  return idx;
+}
+
+// Schedule
+function renderSchedule() {
+  const container = document.getElementById('schedule-container');
+  const today = new Date();
+  const todayIdx = today.getDay() === 0 ? 7 : today.getDay();
+
+  let html = '<div class="schedule-grid">';
+  html += '<div class="sch-header"></div>';
+  DAYS.forEach((d, i) => {
+    const isToday = (i + 1) === todayIdx;
+    html += `<div class="sch-header ${isToday ? 'today-col' : ''}">${d}${isToday ? ' ·今天' : ''}</div>`;
+  });
+
+  TIMES.forEach(time => {
+    html += `<div class="sch-time">${time}</div>`;
+    for (let day = 1; day <= 5; day++) {
+      const key = `d${day}_${time}`;
+      const course = state.schedule[key];
+      if (course) {
+        const colorIdx = getCourseColorIdx(key);
+        html += `<div class="sch-cell course ${COURSE_COLORS[colorIdx]}" onclick="editSchedule(${day},'${time}')">
+          <div class="course-name">${course.name}</div>
+          <div class="course-loc">${course.location || ''}</div>
+        </div>`;
+      } else {
+        html += `<div class="sch-cell empty" onclick="addSchedule(${day},'${time}')">+</div>`;
+      }
+    }
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// Modal for schedule
+let modalCallback = null;
+function openModal(title, nameVal, locVal, isEdit, day, time) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-course-name').value = nameVal || '';
+  document.getElementById('modal-course-loc').value = locVal || '';
+  document.getElementById('modal-overlay').classList.add('show');
+  document.getElementById('modal-course-name').focus();
+
+  const confirmBtn = document.getElementById('modal-confirm');
+  confirmBtn.textContent = isEdit ? '保存' : '添加';
+  confirmBtn.onclick = () => {
+    const name = document.getElementById('modal-course-name').value.trim();
+    const loc = document.getElementById('modal-course-loc').value.trim();
+    if (!name) { showToast('请输入课程名称'); return; }
+    if (isEdit) {
+      state.schedule[`d${day}_${time}`] = { name, location: loc };
+    } else {
+      state.schedule[`d${day}_${time}`] = { name, location: loc };
+      getCourseColorIdx(`d${day}_${time}`);
+    }
+    saveData();
+    renderSchedule();
+    closeModal();
+    showToast(isEdit ? '课程已更新' : '课程已添加');
+  };
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+
+function addSchedule(day, time) { openModal('添加课程', '', '', false, day, time); }
+function editSchedule(day, time) {
+  const key = `d${day}_${time}`;
+  const course = state.schedule[key];
+  if (!course) return;
+  const edit = confirm(`编辑：${course.name}\n地点：${course.location || '未定'}\n\n确定 = 编辑信息\n取消 = 删除该课程`);
+  if (edit) {
+    openModal('编辑课程', course.name, course.location, true, day, time);
+  } else {
+    if (confirm(`确认删除「${course.name}」？`)) {
+      delete state.schedule[key];
+      delete state.scheduleColors[key];
+      saveData();
+      renderSchedule();
+      showToast('课程已删除');
+    }
+  }
+}
+
+// DDL
+function renderDDL() {
+  const list = document.getElementById('ddl-list');
+  const summary = document.getElementById('ddl-summary');
+  const sorted = [...state.ddls].sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return new Date(a.date) - new Date(b.date);
+  });
+
+  const pending = sorted.filter(d => !d.done);
+  summary.textContent = `${pending.length} 项待办 / ${state.ddls.length} 项总计`;
+
+  if (sorted.length === 0) {
+    list.innerHTML = '<div class="empty-state">暂无 DDL，在下方添加第一项</div>';
+    return;
+  }
+
+  list.innerHTML = sorted.map(d => {
+    const days = daysBetween(d.date);
+    let cls = 'normal', label = `还有 ${days} 天`, progress = 100;
+    if (d.done) { cls = 'done'; label = '已完成'; progress = 100; }
+    else if (days < 0) { cls = 'urgent'; label = `逾期 ${-days} 天`; progress = 100; }
+    else if (days === 0) { cls = 'urgent'; label = '今天到期'; progress = 90; }
+    else if (days <= 2) { cls = 'urgent'; label = `还有 ${days} 天`; progress = 70; }
+    else if (days <= 7) { cls = 'soon'; label = `还有 ${days} 天`; progress = 45; }
+    else { progress = Math.max(10, Math.round(30 - days * 2)); }
+
+    const barColor = cls === 'urgent' ? 'var(--danger)' : cls === 'soon' ? 'var(--warning)' : cls === 'done' ? 'var(--text-tertiary)' : 'var(--success)';
+
+    return `
+      <div class="ddl-item ${d.done ? 'done' : ''} ${cls}">
+        <div class="ddl-check ${d.done ? 'done' : ''}" onclick="toggleDDL(${d.id})"></div>
+        <div class="ddl-info">
+          <div class="ddl-title">${d.title}</div>
+          <div class="ddl-meta">${d.subject || '未分类'} \u00b7 ${d.date}</div>
+        </div>
+        <div class="ddl-progress"><div class="ddl-progress-bar" style="width:${progress}%;background:${barColor}"></div></div>
+        <span class="ddl-countdown ${cls}">${label}</span>
+        <button class="ddl-del" onclick="deleteDDL(${d.id})">&times;</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function addDDL() {
+  const title = document.getElementById('ddl-title').value.trim();
+  const subject = document.getElementById('ddl-subject').value.trim();
+  const date = document.getElementById('ddl-date').value;
+  if (!title || !date) { showToast('请填写标题和日期'); return; }
+  state.ddls.push({ id: Date.now(), title, subject, date, done: false });
+  saveData();
+  document.getElementById('ddl-title').value = '';
+  document.getElementById('ddl-subject').value = '';
+  document.getElementById('ddl-date').value = '';
+  renderDDL();
+  showToast('DDL 已添加');
+}
+
+function toggleDDL(id) {
+  const d = state.ddls.find(x => x.id === id);
+  if (d) { d.done = !d.done; saveData(); renderDDL(); if (d.done) showToast('完成！'); }
+}
+
+function deleteDDL(id) {
+  if (!confirm('确认删除这条 DDL？')) return;
+  state.ddls = state.ddls.filter(x => x.id !== id);
+  saveData();
+  renderDDL();
+  showToast('已删除');
+}
+
+// Notes
+function renderNotes() {
+  const list = document.getElementById('note-list');
+  if (state.notes.length === 0) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px">暂无笔记<br>点击「新建」创建</div>';
+    document.getElementById('note-title').value = '';
+    document.getElementById('note-subject').value = '';
+    document.getElementById('note-content').value = '';
+    return;
+  }
+  list.innerHTML = state.notes.map(n => `
+    <div class="note-item ${n.id === state.currentNoteId ? 'active' : ''}" data-id="${n.id}" onclick="selectNote(${n.id})">
+      <div class="note-title">${n.title || '无标题'}</div>
+      <div class="note-date">${n.subject ? '<span class="note-tag">' + n.subject + '</span>' : ''}${n.updatedAt || ''}</div>
+    </div>
+  `).join('');
+  if (state.currentNoteId) loadNoteEditor(state.currentNoteId);
+}
+
+function newNote() {
+  state.currentNoteId = null;
+  document.getElementById('note-title').value = '';
+  document.getElementById('note-subject').value = '';
+  document.getElementById('note-content').value = '';
+  document.getElementById('note-title').focus();
+  document.querySelectorAll('.note-item').forEach(el => el.classList.remove('active'));
+}
+
+function selectNote(id) {
+  state.currentNoteId = id;
+  loadNoteEditor(id);
+  document.querySelectorAll('.note-item').forEach(el => {
+    el.classList.toggle('active', parseInt(el.dataset.id) === id);
+  });
+}
+
+function loadNoteEditor(id) {
+  const n = state.notes.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('note-title').value = n.title;
+  document.getElementById('note-subject').value = n.subject || '';
+  document.getElementById('note-content').value = n.content;
+}
+
+let saveTimer = null;
+function autoSaveNote() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    if (!state.currentNoteId) return;
+    const n = state.notes.find(x => x.id === state.currentNoteId);
+    if (!n) return;
+    n.title = document.getElementById('note-title').value.trim() || '无标题';
+    n.subject = document.getElementById('note-subject').value.trim();
+    n.content = document.getElementById('note-content').value;
+    saveData();
+  }, 800);
+}
+
+function saveNote() {
+  const title = document.getElementById('note-title').value.trim();
+  const subject = document.getElementById('note-subject').value.trim();
+  const content = document.getElementById('note-content').value;
+  if (!title && !content) { showToast('请输入内容'); return; }
+  const now = new Date();
+  const dateStr = `${now.getMonth()+1}月${now.getDate()}日`;
+  if (state.currentNoteId) {
+    const n = state.notes.find(x => x.id === state.currentNoteId);
+    n.title = title || '无标题';
+    n.subject = subject; n.content = content; n.updatedAt = dateStr;
+  } else {
+    const newNote = { id: Date.now(), title: title || '无标题', subject, content, updatedAt: dateStr };
+    state.notes.unshift(newNote);
+    state.currentNoteId = newNote.id;
+  }
+  saveData();
+  renderNotes();
+  showToast('笔记已保存');
+}
+
+function deleteNote() {
+  if (!state.currentNoteId) { showToast('请先选择笔记'); return; }
+  if (!confirm('确认删除这篇笔记？')) return;
+  state.notes = state.notes.filter(x => x.id !== state.currentNoteId);
+  state.currentNoteId = null;
+  saveData();
+  renderNotes();
+  showToast('笔记已删除');
+}
+
+// Init
+function init() {
+  document.getElementById('today-date').textContent = formatDate(new Date());
+
+  if (!localStorage.getItem('cmt_data_v2')) {
+    state.schedule = {
+      'd1_08:00': { name: '高等数学', location: '教1-301' },
+      'd1_10:00': { name: '线性代数', location: '教1-205' },
+      'd1_14:00': { name: '大学英语', location: '外语楼102' },
+      'd2_09:00': { name: '数据结构', location: '计楼401' },
+      'd2_15:00': { name: '离散数学', location: '教2-308' },
+      'd3_08:00': { name: '高等数学', location: '教1-301' },
+      'd3_10:00': { name: '操作系统', location: '计楼502' },
+      'd3_14:00': { name: '数据结构', location: '计楼401' },
+      'd4_09:00': { name: '线性代数', location: '教1-205' },
+      'd4_14:00': { name: '大学英语', location: '外语楼102' },
+      'd4_16:00': { name: '操作系统', location: '计楼502' },
+      'd5_10:00': { name: '离散数学', location: '教2-308' },
+      'd5_14:00': { name: '数据结构', location: '计楼401' },
+      'd5_19:00': { name: '体育', location: '体育馆' },
+    };
+    const today = new Date();
+    const d = (n) => { const x = new Date(today); x.setDate(x.getDate()+n); return x.toISOString().split('T')[0]; };
+    state.ddls = [
+      { id: 1, title: '数据结构实验报告3', subject: '数据结构', date: d(2), done: false },
+      { id: 2, title: '线性代数作业第4章', subject: '线性代数', date: d(5), done: false },
+      { id: 3, title: '英语作文 Draft', subject: '大学英语', date: d(7), done: false },
+      { id: 4, title: '操作系统期中考试', subject: '操作系统', date: d(14), done: false },
+      { id: 5, title: '离散数学作业', subject: '离散数学', date: d(-1), done: true },
+    ];
+    state.notes = [
+      { id: 100, title: '红黑树性质与插入', subject: '数据结构',
+        content: '红黑树性质：\n1. 每个节点是红色或黑色\n2. 根节点是黑色\n3. 每个叶子（NIL）是黑色\n4. 红节点的子节点必须是黑色\n5. 从任一节点到叶子的所有路径包含相同数量的黑节点\n\n插入操作：\n- 新节点默认红色\n- 叔叔红色 -> 重新着色上推\n- 叔叔黑色 -> 旋转 + 重新着色\n\n考点：旋转操作步骤和着色规则，LL/RR/LR/RL四种情况',
+        updatedAt: '8月29日' },
+      { id: 101, title: '进程调度算法', subject: '操作系统',
+        content: '进程调度算法：\n1. FCFS（先来先服务）- 简单但可能护航效应\n2. SJF（短作业优先）- 最优平均等待时间，但可能饿死长作业\n3. RR（时间片轮转）- 公平，时间片大小影响性能\n4. 多级反馈队列 - 综合以上优点\n\n关键概念：\n- CPU利用率 vs 吞吐量 vs 周转时间 vs 等待时间 vs 响应时间\n- 抢占式 vs 非抢占式',
+        updatedAt: '8月28日' },
+    ];
+    state.currentNoteId = 100;
+    // Assign colors
+    Object.keys(state.schedule).forEach((key, i) => { state.scheduleColors[key] = i % COURSE_COLORS.length; });
+    saveData();
+  }
+
+  loadData();
+  renderNav();
+  renderOverview();
+
+  // Auto-save notes on input
+  ['note-title', 'note-subject', 'note-content'].forEach(id => {
+    document.getElementById(id).addEventListener('input', autoSaveNote);
+  });
+
+  // Close modal on overlay click
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-overlay') closeModal();
+  });
+}
+
+init();
+</script>
+</body>
+</html>
