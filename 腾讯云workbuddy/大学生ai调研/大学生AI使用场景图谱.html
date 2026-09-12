@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大学生 AI 使用场景图谱</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: #f5f5f0;
+  color: #2c2c2a;
+  line-height: 1.8;
+  font-size: 15px;
+}
+.container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 3rem 0 2rem;
+  border-bottom: 2px solid #d3d1c7;
+}
+.hero h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #26215c;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+.hero .subtitle {
+  font-size: 14px;
+  color: #888780;
+  font-weight: 400;
+}
+.hero .date-badge {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 4px 14px;
+  background: #eeedfe;
+  color: #534ab7;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Section */
+.section {
+  margin-top: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e8e6df;
+}
+.section:last-child { border-bottom: none; }
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #26215c;
+  margin-bottom: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title .num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #534ab7;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+}
+.section-desc {
+  font-size: 13px;
+  color: #888780;
+  margin-bottom: 1.5rem;
+  margin-left: 36px;
+}
+
+/* Metric cards */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 1.5rem;
+}
+.metric-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  border: 1px solid #e8e6df;
+}
+.metric-card .value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #534ab7;
+  line-height: 1.2;
+}
+.metric-card .label {
+  font-size: 12px;
+  color: #888780;
+  margin-top: 4px;
+}
+
+/* Chart container */
+.chart-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e8e6df;
+  margin-bottom: 1.5rem;
+}
+.chart-box h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: #444441;
+  margin-bottom: 1rem;
+}
+.chart-wrapper {
+  position: relative;
+  width: 100%;
+}
+.custom-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #888780;
+}
+.custom-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.custom-legend .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+.data-table th {
+  background: #f1efe8;
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 500;
+  color: #444441;
+  border-bottom: 2px solid #d3d1c7;
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e8e6df;
+  color: #5f5e5a;
+}
+.data-table tr:hover { background: #faf9f5; }
+
+/* Pain points */
+.pain-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pain-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e8e6df;
+}
+.pain-item .pain-num {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: #faece7;
+  color: #993c1d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+.pain-item .pain-content h4 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #444441;
+  margin-bottom: 2px;
+}
+.pain-item .pain-content p {
+  font-size: 13px;
+  color: #888780;
+}
+
+/* Insight box */
+.insight-box {
+  background: linear-gradient(135deg, #eeedfe 0%, #e6f1fb 100%);
+  border-radius: 12px;
+  padding: 1.5rem 1.75rem;
+  border-left: 4px solid #534ab7;
+  margin: 2rem 0;
+}
+.insight-box .label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #534ab7;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+.insight-box .text {
+  font-size: 16px;
+  font-weight: 500;
+  color: #26215c;
+  line-height: 1.6;
+}
+
+/* Source list */
+.source-list {
+  list-style: none;
+  font-size: 13px;
+}
+.source-list li {
+  padding: 6px 0;
+  color: #5f5e5a;
+  border-bottom: 1px dashed #e8e6df;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.source-list li::before {
+  content: "■";
+  color: #b4b2a9;
+  font-size: 10px;
+  margin-top: 4px;
+}
+.source-list li:last-child { border-bottom: none; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 2rem 0 1rem;
+  font-size: 12px;
+  color: #b4b2a9;
+}
+
+/* Tag */
+.tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+.tag-purple { background: #eeedfe; color: #534ab7; }
+.tag-coral { background: #faece7; color: #993c1d; }
+.tag-teal { background: #e1f5ee; color: #0f6e56; }
+.tag-blue { background: #e6f1fb; color: #185fa5; }
+.tag-amber { background: #faeeda; color: #854f0b; }
+
+/* Note */
+.note {
+  background: #faf9f5;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-size: 13px;
+  color: #5f5e5a;
+  margin-bottom: 1rem;
+  border-left: 3px solid #d3d1c7;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- Hero -->
+<div class="hero">
+  <h1>大学生 AI 使用场景图谱</h1>
+  <p class="subtitle">同学们到底用 AI 在做什么？最关心什么？卡在哪里？</p>
+  <span class="date-badge">2026.08 · 基于公开平台数据整合分析</span>
+</div>
+
+<!-- Insight -->
+<div class="insight-box">
+  <div class="label">一句话洞察</div>
+  <div class="text">99.2% 的大学生已接入 AI，但近半数"离不开"，四成有"AI 焦虑"——AI 不再只是写论文的工具，而是正在成为 00 后的"第二大脑"和"情绪树洞"，与此同时，学术诚信争议和心理依赖已成为两大现实困境。</div>
+</div>
+
+<!-- Section 1: Core Metrics -->
+<div class="section">
+  <div class="section-title"><span class="num">1</span> 核心数据：AI 已全面渗透校园</div>
+  <p class="section-desc">数据来源：《2025年大学生AI使用行为与心态洞察报告》（中国青年报社×Soul App，3129份有效问卷）、《2025年高校师生AI应用及素养研究》（麦可思，2971名大学生+1073名教师）</p>
+
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="value">99.2%</div>
+      <div class="label">AI 渗透率</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">47.1%</div>
+      <div class="label">坦言"离不开 AI"</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">65.9%</div>
+      <div class="label">遇问题首选求助 AI</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">43.5%</div>
+      <div class="label">存在 AI 焦虑</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">~80%</div>
+      <div class="label">把 AI 当"朋友"</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">42.0%</div>
+      <div class="label">经历过学术纠纷</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>关键背景：</strong>调研样本 97% 为 00 后，65% 为 05 后，覆盖理工农医、文史哲、经管法、教育艺术等多元学科。AI 工具渠道偏好评分 3.34 分（满分5分），已超越传统搜索引擎（2.60分）和社交媒体（2.81分），成为大学生信息获取首选。
+  </div>
+</div>
+
+<!-- Section 2: Usage Scenarios -->
+<div class="section">
+  <div class="section-title"><span class="num">2</span> 使用场景：学习、生活、社交、情感四维渗透</div>
+  <p class="section-desc">AI 应用已远超"写论文"单一场景，覆盖大学生日常生活的方方面面</p>
+
+  <div class="chart-box">
+    <h3>大学生 AI 使用场景分布（按领域）</h3>
+    <div class="custom-legend">
+      <span><span class="dot" style="background:#534ab7;"></span>学习场景</span>
+      <span><span class="dot" style="background:#1d9e75;"></span>生活场景</span>
+      <span><span class="dot" style="background:#d85a30;"></span>社交场景</span>
+      <span><span class="dot" style="background:#185fa5;"></span>情感陪伴</span>
+    </div>
+    <div class="chart-wrapper" style="height:340px;">
+      <canvas id="scenarioChart" role="img" aria-label="大学生AI使用场景分布水平条形图">大学生AI使用场景分布水平条形图</canvas>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>不同专业学生 AI 核心使用场景对比</h3>
+    <div class="chart-wrapper" style="height:320px;">
+      <canvas id="majorChart" role="img" aria-label="不同专业AI使用场景对比分组柱状图">不同专业AI使用场景对比分组柱状图</canvas>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>场景分类</th>
+        <th>具体应用</th>
+        <th>使用比例</th>
+        <th>主要人群</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag tag-purple">学习</span> 文本润色</td>
+        <td>论文润色、翻译、总结汇报</td>
+        <td>>43.0%</td>
+        <td>文史哲（52.7%）</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">学习</span> 代码撰写</td>
+        <td>编程辅助、代码调试</td>
+        <td>25.9%</td>
+        <td>理工农医</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">学习</span> PPT/报表</td>
+        <td>制作演示文稿和数据报表</td>
+        <td>47.5%</td>
+        <td>经管法</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">学习</span> 图像生成</td>
+        <td>图片创作、视频剪辑</td>
+        <td>43.1%</td>
+        <td>艺术教育</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-teal">生活</span> 生活常识</td>
+        <td>查询日常知识、攻略</td>
+        <td>48.3%</td>
+        <td>全体</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-teal">生活</span> 旅游计划</td>
+        <td>行程规划、路线推荐</td>
+        <td>40.3%</td>
+        <td>全体</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-teal">生活</span> 修图/视频</td>
+        <td>图片处理、视频编辑</td>
+        <td>36.3%</td>
+        <td>全体</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-coral">社交</span> 社交辅助</td>
+        <td>沟通技巧、礼物挑选、缓解尴尬</td>
+        <td>62.7%</td>
+        <td>大一新生突出</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">情感</span> 闲聊/陪伴</td>
+        <td>将 AI 作为聊天对象甚至朋友</td>
+        <td>~80%</td>
+        <td>全体</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-blue">情感</span> 情绪安抚</td>
+        <td>情绪低落时向 AI 寻求安慰</td>
+        <td>26.0%</td>
+        <td>大四高于大一</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>年级差异：</strong>大一大二学生更多用于资料查询、图片生成、口语训练、模拟面试等"探索性"场景；大三大四学生更多用于求职建议、数据统计、代码撰写、会议记录等"产出性"场景。大四学生每天多次使用 AI 的比例达 21.2%，远高于大一新生的 8.0%。
+  </div>
+</div>
+
+<!-- Section 3: Tool Preferences -->
+<div class="section">
+  <div class="section-title"><span class="num">3</span> 工具偏好：国产 AI 成主流，免费是王道</div>
+  <p class="section-desc">综合知乎、B站、CSDN 等平台讨论，大学生最常用的 AI 工具及场景适配如下</p>
+
+  <div class="chart-box">
+    <h3>大学生 AI 工具使用偏好（综合平台讨论热度）</h3>
+    <div class="chart-wrapper" style="height:320px;">
+      <canvas id="toolChart" role="img" aria-label="大学生AI工具使用偏好雷达图">大学生AI工具使用偏好雷达图</canvas>
+    </div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>工具</th>
+        <th>核心优势</th>
+        <th>适合场景</th>
+        <th>费用</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>DeepSeek</td>
+        <td>推理能力强，中文理解优秀</td>
+        <td>论文大纲、代码调试、翻译</td>
+        <td><span class="tag tag-teal">免费</span></td>
+      </tr>
+      <tr>
+        <td>Kimi</td>
+        <td>200万字超长文本处理</td>
+        <td>长论文分析、文献综述、跨文档对比</td>
+        <td><span class="tag tag-teal">免费</span></td>
+      </tr>
+      <tr>
+        <td>豆包</td>
+        <td>创意任务强，交互体验好</td>
+        <td>PPT创意、演讲稿、社交建议</td>
+        <td><span class="tag tag-teal">免费</span></td>
+      </tr>
+      <tr>
+        <td>ChatGPT</td>
+        <td>综合能力最强，生态丰富</td>
+        <td>英文写作、口语练习、图片生成</td>
+        <td><span class="tag tag-amber">免费版有限</span></td>
+      </tr>
+      <tr>
+        <td>通义千问</td>
+        <td>中文场景优化，PPT大纲</td>
+        <td>课程汇报、演示文稿</td>
+        <td><span class="tag tag-teal">免费</span></td>
+      </tr>
+      <tr>
+        <td>Perplexity</td>
+        <td>AI搜索引擎，标明来源</td>
+        <td>文献检索、资料查证</td>
+        <td><span class="tag tag-amber">免费版有限</span></td>
+      </tr>
+      <tr>
+        <td>GitHub Copilot</td>
+        <td>IDE深度集成，代码补全</td>
+        <td>编程作业、项目开发</td>
+        <td><span class="tag tag-teal">学生免费</span></td>
+      </tr>
+      <tr>
+        <td>秘塔 AI</td>
+        <td>学术全流程，引用格式规范</td>
+        <td>文献综述、论文框架</td>
+        <td><span class="tag tag-teal">免费</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>平台共识：</strong>知乎和 B 站讨论中最常见的建议是"先用免费组合，不要一上来买 ChatGPT Plus"。推荐组合：DeepSeek（论文/代码）+ Kimi（长文本）+ 豆包（创意/PPT）+ Perplexity（搜索）。多数工具免费版已满足学生需求。
+  </div>
+</div>
+
+<!-- Section 4: Pain Points -->
+<div class="section">
+  <div class="section-title"><span class="num">4</span> 痛点与卡点：同学们卡在哪里？</div>
+  <p class="section-desc">综合知乎用户长文体验总结、B 站教程评论区讨论、调研报告数据，提炼 12 大痛点</p>
+
+  <div class="chart-box">
+    <h3>大学生 AI 焦虑三大核心担忧</h3>
+    <div class="chart-wrapper" style="height:280px;">
+      <canvas id="anxietyChart" role="img" aria-label="大学生AI焦虑三大核心担忧环形图">大学生AI焦虑三大核心担忧环形图</canvas>
+    </div>
+  </div>
+
+  <div class="pain-list">
+    <div class="pain-item">
+      <div class="pain-num">1</div>
+      <div class="pain-content">
+        <h4>长期记忆缺失</h4>
+        <p>每次写论文/做项目都要重新输入背景和需求，AI 聊着聊着就忘，说过的话题转眼清零，重复劳动多</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">2</div>
+      <div class="pain-content">
+        <h4>信息幻觉与时效问题</h4>
+        <p>AI 会非常自信地编造文献来源，论文引用的参考资料看似专业实则虚构，学术诚信风险高</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">3</div>
+      <div class="pain-content">
+        <h4>学术争议已成现实困境</h4>
+        <p>65.9% 的大学生直接或间接面临 AI 学术争议风险，42.0% 亲身经历过抄袭判定、作业扣分等纠纷</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">4</div>
+      <div class="pain-content">
+        <h4>"听不懂人话"——沟通成本极高</h4>
+        <p>简单要求需重复 N 次仍未对齐，节约的生成时间被沟通成本吞噬，修改无数次，情绪消耗大</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">5</div>
+      <div class="pain-content">
+        <h4>情绪承接式话术固化认知</h4>
+        <p>AI 永远顺着用户说，第一步永远是承接情绪，让人越来越偏执、顽固，大学生价值观形成期尤甚</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">6</div>
+      <div class="pain-content">
+        <h4>主观问题回答乏力</h4>
+        <p>职业规划、考研 vs 就业等人生选择问题，AI 只会附和或绕圈子，无法获得真正有价值的建议</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">7</div>
+      <div class="pain-content">
+        <h4>跨平台体验差异大</h4>
+        <p>豆包、元宝、千问等工具同一问题结果完全不同，语音交互抢话、无聊天记录、字数限制等槽点频出</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">8</div>
+      <div class="pain-content">
+        <h4>AI 焦虑与思维依赖</h4>
+        <p>43.5% 存在 AI 焦虑，62.3% 担心过度依赖导致思维懒惰、丧失独立思考能力，文史哲专业焦虑最高（48.4%）</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">9</div>
+      <div class="pain-content">
+        <h4>情感依赖隐患</h4>
+        <p>26.0% 情绪低落时向 AI 寻求安慰，53.7% 担心对 AI 产生情感依托而忽视身边人，大四学生更担心"离开 AI 后情绪难调节"</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">10</div>
+      <div class="pain-content">
+        <h4>陌生领域盲信风险</h4>
+        <p>跨专业选修课、新领域课题研究中缺乏判断力，AI 用真实数据包装错误结论，难以辨别</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">11</div>
+      <div class="pain-content">
+        <h4>免费版功能受限与 AI 内卷</h4>
+        <p>免费版额度、文件大小、搜索深度有限，同学间用进阶版/付费版造成信息差和竞争劣势</p>
+      </div>
+    </div>
+    <div class="pain-item">
+      <div class="pain-num">12</div>
+      <div class="pain-content">
+        <h4>信息茧房与权限不对等</h4>
+        <p>AI 推荐内容、信息过滤由算法决定，大学生不自知地陷入信息茧房，视野受限而不自知</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Student Mindset -->
+<div class="section">
+  <div class="section-title"><span class="num">5</span> 学生心态：从"工具人"到"情感伙伴"的代际变迁</div>
+  <p class="section-desc">大学生对 AI 的角色定位已多元化，不再是单一的工具认知</p>
+
+  <div class="chart-box">
+    <h3>大学生对 AI 的角色定位</h3>
+    <div class="chart-wrapper" style="height:280px;">
+      <canvas id="roleChart" role="img" aria-label="大学生对AI角色定位饼图">大学生对AI角色定位饼图</canvas>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>AI 时代大学生认为最需培养的能力</h3>
+    <div class="chart-wrapper" style="height:300px;">
+      <canvas id="abilityChart" role="img" aria-label="AI时代最需培养能力水平条形图">AI时代最需培养能力水平条形图</canvas>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>应对策略：</strong>62.3% 的学生计划"学习 AI 相关知识，让 AI 成为为我所用的工具"，59.7% 选择"提升专业能力，增强不可替代性"。华中师范大学教授吴砥建议：理性看待技术，注重破解"AI 幻觉"和"信息茧房"，提升信息甄别能力。
+  </div>
+</div>
+
+<!-- Section 6: Framework & Sources -->
+<div class="section">
+  <div class="section-title"><span class="num">6</span> 分析框架与数据来源</div>
+  <p class="section-desc">本报告的分析方法和数据采集过程透明可追溯</p>
+
+  <h3 style="font-size:15px; font-weight:500; color:#444441; margin-bottom:0.75rem;">分析框架</h3>
+  <div class="note" style="margin-bottom:1.5rem;">
+    <strong>四维分析模型：</strong><br>
+    <strong>① 使用场景维度</strong>——学习（论文/代码/PPT）、生活（常识/旅游/修图）、社交（沟通技巧/礼物/尴尬）、情感（闲聊/安慰）<br>
+    <strong>② 工具偏好维度</strong>——DeepSeek、Kimi、豆包、ChatGPT、通义千问等工具的场景适配与费用对比<br>
+    <strong>③ 痛点卡点维度</strong>——技术痛点（幻觉/记忆/沟通）、学术痛点（诚信/争议）、心理痛点（焦虑/依赖/情感）<br>
+    <strong>④ 心态认知维度</strong>——角色定位、焦虑分布、应对策略、能力培养方向
+  </div>
+
+  <h3 style="font-size:15px; font-weight:500; color:#444441; margin-bottom:0.75rem;">搜索平台与关键词</h3>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>平台</th>
+        <th>搜索关键词</th>
+        <th>内容类型</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>知乎</td>
+        <td>大学生 AI工具 使用场景 / 各专业大学生 AI / AI工具 痛点 / AI 焦虑 依赖 / DeepSeek 豆包 Kimi 推荐</td>
+        <td>专栏文章、问答讨论、用户长文体验</td>
+      </tr>
+      <tr>
+        <td>B站</td>
+        <td>大学生 ChatGPT 写论文 / AI工具 教程 推荐</td>
+        <td>视频教程、评论区反馈</td>
+      </tr>
+      <tr>
+        <td>公众号/新闻</td>
+        <td>大学生 AI使用 调研报告 / AI 学术诚信 / AI 焦虑</td>
+        <td>调研报告转载、新闻报道</td>
+      </tr>
+      <tr>
+        <td>CSDN/博客</td>
+        <td>大学生 AI工具 全攻略 / 学生 AI工具 推荐</td>
+        <td>技术博客、工具横评</td>
+      </tr>
+      <tr>
+        <td>今日头条/网易</td>
+        <td>大学生 AI使用 心态洞察 / 学术争议</td>
+        <td>报告解读、新闻转载</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size:15px; font-weight:500; color:#444441; margin:1.5rem 0 0.75rem;">核心数据来源</h3>
+  <ul class="source-list">
+    <li>《2025年大学生AI使用行为与心态洞察报告》——中国青年报社×中青校媒×Soul App，3129份有效问卷（00后占97%，05后占65%）</li>
+    <li>《2025年高校师生AI应用及素养研究》——麦可思，2971名在校大学生（本科生2177+研究生794）+1073名高校教师</li>
+    <li>知乎专栏《AI工具用户体验痛点总结（纯个人刁钻使用视角）》——12大痛点详细梳理</li>
+    <li>知乎专栏《各专业大学生都在这么用AI！》——各专业使用场景数据</li>
+    <li>知乎《大学生AI工具选择指南》《国产大模型怎么选》——工具对比横评</li>
+    <li>CSDN《大学生必备AI工具全攻略：按场景选对工具》——四大场景工具推荐</li>
+    <li>AI Tool CN《学生AI工具推荐2026》——免费/低价工具场景适配</li>
+    <li>B站《ChatGPT论文写作最强实战》等教程——视频教程与评论区反馈</li>
+    <li>新华网/中新网——高校 AI 工具使用规范与学术诚信报道</li>
+  </ul>
+
+  <div class="note" style="margin-top:1.5rem;">
+    <strong>分析方法说明：</strong>本报告采用"搜索-抓取-提取-整合"四步法。通过 WebSearch 搜索多平台公开内容，WebFetch 提取关键数据和观点，人工整合分类为四维分析框架。所有百分比数据均标注来源调研报告，痛点条目来自知乎用户长文体验帖。数据具有时效性（2025年调研），反映的是该时间段的状况。
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>大学生 AI 使用场景图谱 · 2026.08 生成</p>
+  <p>数据来源：中国青年报社、麦可思、知乎、B站、CSDN 等公开平台</p>
+  <p style="margin-top:4px;">本报告由 WorkBuddy AI 搜索整合生成，仅供参考</p>
+</div>
+
+</div>
+
+<script>
+// Chart defaults
+Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#888780';
+Chart.defaults.plugins.legend.display = false;
+
+// Chart 1: Scenario Distribution (horizontal bar)
+new Chart(document.getElementById('scenarioChart'), {
+  type: 'bar',
+  data: {
+    labels: ['资料/文献查询', '文本润色', '翻译', 'PPT/汇报制作', '生活常识查询', '社交辅助', '旅游计划', '修图/视频', '情绪低落求安慰', '闲聊/朋友'],
+    datasets: [{
+      label: '使用比例',
+      data: [43.0, 43.0, 43.0, 43.0, 48.3, 62.7, 40.3, 36.3, 26.0, 80.0],
+      backgroundColor: ['#534ab7','#534ab7','#534ab7','#534ab7','#1d9e75','#d85a30','#1d9e75','#1d9e75','#185fa5','#185fa5'],
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { max: 100, grid: { color: '#f1efe8' }, ticks: { callback: v => v + '%' } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.parsed.x + '%' } }
+    }
+  }
+});
+
+// Chart 2: Major Comparison (grouped bar)
+new Chart(document.getElementById('majorChart'), {
+  type: 'bar',
+  data: {
+    labels: ['代码撰写', '文本润色', 'PPT/报表', '图像生成'],
+    datasets: [
+      { label: '理工农医', data: [25.9, 0, 0, 0], backgroundColor: '#534ab7', borderRadius: 4 },
+      { label: '文史哲', data: [0, 52.7, 0, 0], backgroundColor: '#d85a30', borderRadius: 4 },
+      { label: '经管法', data: [0, 0, 47.5, 0], backgroundColor: '#1d9e75', borderRadius: 4 },
+      { label: '艺术教育', data: [0, 0, 0, 43.1], backgroundColor: '#185fa5', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false } },
+      y: { max: 60, grid: { color: '#f1efe8' }, ticks: { callback: v => v + '%' } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' } }
+    }
+  }
+});
+
+// Chart 3: Tool Preferences (radar)
+new Chart(document.getElementById('toolChart'), {
+  type: 'radar',
+  data: {
+    labels: ['论文写作', '长文本处理', '代码能力', '创意/PPT', '搜索/资料', '英文能力', '免费可用'],
+    datasets: [
+      { label: 'DeepSeek', data: [9, 7, 9, 5, 6, 7, 10], backgroundColor: 'rgba(83,74,183,0.15)', borderColor: '#534ab7', borderWidth: 2, pointBackgroundColor: '#534ab7' },
+      { label: 'Kimi', data: [7, 10, 6, 4, 6, 6, 10], backgroundColor: 'rgba(29,158,117,0.15)', borderColor: '#1d9e75', borderWidth: 2, pointBackgroundColor: '#1d9e75' },
+      { label: '豆包', data: [6, 5, 4, 9, 5, 5, 10], backgroundColor: 'rgba(216,90,48,0.15)', borderColor: '#d85a30', borderWidth: 2, pointBackgroundColor: '#d85a30' },
+      { label: 'ChatGPT', data: [8, 7, 8, 8, 7, 10, 5], backgroundColor: 'rgba(24,95,165,0.15)', borderColor: '#185fa5', borderWidth: 2, pointBackgroundColor: '#185fa5' }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      r: {
+        beginAtZero: true, max: 10,
+        grid: { color: '#e8e6df' },
+        angleLines: { color: '#e8e6df' },
+        pointLabels: { font: { size: 11 }, color: '#5f5e5a' },
+        ticks: { display: false }
+      }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.r + '/10' } }
+    }
+  }
+});
+
+// Chart 4: Anxiety (doughnut)
+new Chart(document.getElementById('anxietyChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['担心思维懒惰/丧失独立思考', '担心情感依托/忽视身边人', '担心影响现实社交能力'],
+    datasets: [{
+      data: [62.3, 53.7, 46.3],
+      backgroundColor: ['#534ab7', '#d85a30', '#185fa5'],
+      borderColor: '#fff',
+      borderWidth: 3
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '55%',
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } }
+    }
+  }
+});
+
+// Chart 5: Role positioning (pie)
+new Chart(document.getElementById('roleChart'), {
+  type: 'pie',
+  data: {
+    labels: ['工作助手', '工具人', '学习伙伴', '情绪树洞/朋友', '其他'],
+    datasets: [{
+      data: [59.8, 42.1, 38.5, 26.0, 10.0],
+      backgroundColor: ['#534ab7', '#1d9e75', '#185fa5', '#d85a30', '#b4b2a9'],
+      borderColor: '#fff',
+      borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.label + ': ' + ctx.parsed + '%' } }
+    }
+  }
+});
+
+// Chart 6: Abilities (horizontal bar)
+new Chart(document.getElementById('abilityChart'), {
+  type: 'bar',
+  data: {
+    labels: ['创造能力', '批判性思维', '提问反思', '人机协作', '沟通协调'],
+    datasets: [{
+      data: [62.0, 56.0, 54.1, 52.8, 52.5],
+      backgroundColor: ['#534ab7','#534ab7','#534ab7','#534ab7','#534ab7'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { max: 70, grid: { color: '#f1efe8' }, ticks: { callback: v => v + '%' } },
+      y: { grid: { display: false }, ticks: { font: { size: 12 } } }
+    },
+    plugins: {
+      tooltip: { callbacks: { label: ctx => ctx.parsed.x + '%' } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
