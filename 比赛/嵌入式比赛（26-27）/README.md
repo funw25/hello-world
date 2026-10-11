@@ -317,13 +317,44 @@ UI 界面层
 - 理解项目框架，进行初始框架完善，token再见
 - PC端软件骨架完成（0.1版本）
  ```text
-  sequencer/
- ├─ main.py                    # 启动入口
- ├─ sequencer/
- │  ├─ model/                  # 数据层：Note、Channel、Project
- │  ├─ core/                   # 业务逻辑：时间换算、播放引擎
- │  ├─ io/                     # 工程保存/读取
- │  ├─ output/                 # 输出层：DebugOutput、SerialOutput
- │  └─ ui/                     # 界面：主窗口、钢琴卷帘
- └─ tests/                     # 测试
+sequencer/
+├─ main.py                   
+├─ sequencer/
+│  ├─ model/                  # 数据层：Note、Channel、Project
+│  │  ├─ note.py              # 音符：音高 / 开始位置 / 持续时间 + 字段校验
+│  │  ├─ channel.py           # 通道：编号、名称、颜色、音符集合（允许重叠）
+│  │  └─ project.py           # 工程：BPM、拍号、网格步进、通道集合
+│  ├─ core/                   # 业务逻辑：时间换算、播放引擎
+│  │  ├─ timing.py            # 网格整数 <-> 节拍 <-> 秒；网格吸附
+│  │  └─ playback.py          # 事件展平、排序、播放引擎（play / pause / stop）
+│  ├─ io/                     # 工程保存/读取
+│  │  └─ project_io.py        # 工程 JSON 保存 / 读取
+│  ├─ output/                 # 输出适配层
+│  │  ├─ base.py              # OutputAdapter 接口（只有这一个接口）
+│  │  ├─ debug_output.py      # 事件格式化到界面日志
+│  │  └─ serial_output.py     # pyserial 占位，消息格式待定
+│  └─ ui/                     # 界面：主窗口、钢琴卷帘
+│     ├─ main_window.py       # 菜单、通道面板、编辑区、播放控制、事件日志
+│     ├─ piano_roll.py        # 钢琴卷帘视图 + 网格 + 播放头 + 鼠标编辑
+│     └─ app.py               # 入口 main()
+└─ tests/                     # 测试
+   ├─ test_model.py
+   ├─ test_timing.py
+   ├─ test_playback.py
+   ├─ test_project_io.py
+   └─ test_ui_smoke.py        # 界面冒烟测试
  ```
+
+```text
+测试
+pip install -r requirements.txt
+python main.py
+进入sequencer目录后终端运行main.py，打开，创建，保存，打开json/或者快捷键 ctrl + o
+python -m pytest
+```
+<img width="1734" height="428" alt="image" src="https://github.com/user-attachments/assets/cccb9a53-425f-4b97-b864-b85e4fec758a" />
+
+<img width="2061" height="1187" alt="image" src="https://github.com/user-attachments/assets/0c8654ca-f98c-4777-b1aa-88aeb3c0221d" />
+<img width="2036" height="1170" alt="image" src="https://github.com/user-attachments/assets/b9f63b8a-2188-498a-a2c6-352c182109d5" />
+
+
